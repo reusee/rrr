@@ -47,6 +47,8 @@ func main() {
 }
 
 func renameIdentifier(pkgs []*packages.Package, oldName string, newName string) {
+	identifiers := make(map[*ast.Ident]bool)
+
 	for _, pkg := range pkgs {
 		for _, file := range pkg.Syntax {
 
@@ -65,7 +67,7 @@ func renameIdentifier(pkgs []*packages.Package, oldName string, newName string) 
 				if !ok || obj == nil {
 					return true
 				}
-				ident.Name = newName
+				identifiers[ident] = true
 
 				// iter all packages
 				for _, pkg := range pkgs {
@@ -73,7 +75,7 @@ func renameIdentifier(pkgs []*packages.Package, oldName string, newName string) 
 						if o != obj {
 							continue
 						}
-						id.Name = newName
+						identifiers[id] = true
 					}
 				}
 
@@ -81,5 +83,9 @@ func renameIdentifier(pkgs []*packages.Package, oldName string, newName string) 
 			})
 
 		}
+	}
+
+	for id := range identifiers {
+		id.Name = newName
 	}
 }
